@@ -6,6 +6,8 @@ import { BuiltInScraper } from "../siteScrapers/BuiltIn"
 import { WeWorkRemotelyScraper } from "../siteScrapers/WeWorkRemotely"
 import { WorkingNomadsScraper } from "../siteScrapers/WorkingNomads"
 import { RemoteRocketshipScraper } from "../siteScrapers/RemoteRocketship"
+import { BrainTrustScraper } from "../siteScrapers/BrainTrust"
+import { RemoteYeahScraper } from "../siteScrapers/RemoteYeah"
 
 export const scrapers: BaseScraper[] = [
   new NoDeskScraper(),
@@ -14,5 +16,7 @@ export const scrapers: BaseScraper[] = [
   new BuiltInScraper(),
   new WeWorkRemotelyScraper(),
   new WorkingNomadsScraper(),
-  new RemoteRocketshipScraper()
+  new RemoteRocketshipScraper(),
+  new BrainTrustScraper(),
+  new RemoteYeahScraper()
 ]

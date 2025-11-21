@@ -122,12 +122,6 @@ const runScraper = async (): Promise<void> => {
       }
 
       await page.goto(url)
-
-      if (scraperIndex === 0) {
-        const pages = await browser.pages()
-        if (pages?.[0]) pages?.[0].close()
-      }
-
       await scraper.waitForLoad(page)
       await screenshots.capture(page, scraper.site)
 
