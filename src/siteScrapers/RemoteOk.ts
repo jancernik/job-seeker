@@ -14,6 +14,7 @@ export class RemoteOkScraper extends BaseScraper {
   }
 
   async listJobs(page: Page): Promise<JobListing[]> {
+    const source = page.url()
     const allRows = await page.$$("tbody tr")
     const jobRows: typeof allRows = []
 
@@ -24,10 +25,10 @@ export class RemoteOkScraper extends BaseScraper {
 
     const results = await Promise.all(
       jobRows.map((row) =>
-        row.evaluate((el: HTMLTableRowElement) => {
+        row.evaluate((el: HTMLTableRowElement, source: string) => {
           const a = el.querySelector<HTMLAnchorElement>(".preventLink")
-          return a ? { id: el.id, url: a.href } : null
-        })
+          return a ? { id: el.id, url: a.href, source } : null
+        }, source)
       )
     )
 

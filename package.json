@@ -11,9 +11,13 @@
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^24.10.1",
     "@types/node-notifier": "^8.0.5",
+    "@types/react": "^19.2.6",
     "fs-extra": "^11.3.2",
+    "ink": "^6.5.1",
+    "ink-link": "^5.0.0",
     "node-notifier": "^10.0.1",
     "puppeteer": "^24.31.0",
+    "react": "^19.2.0",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3"
   }

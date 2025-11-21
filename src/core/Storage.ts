@@ -36,7 +36,7 @@ export class Storage {
     return !(await fs.pathExists(filePath))
   }
 
-  async processJobs(
+  async getNewJobs(
     site: string,
     scrapedJobs: JobListing[],
     isFirstRun: boolean
@@ -48,7 +48,8 @@ export class Storage {
       .filter((job) => !existingIds.has(job.id))
       .map((job) => ({
         ...job,
-        date: new Date().toISOString()
+        date: new Date().toISOString(),
+        seen: isFirstRun
       }))
 
     if (newJobs.length > 0) {
@@ -57,5 +58,41 @@ export class Storage {
     }
 
     return isFirstRun ? [] : newJobs
+  }
+
+  async getUnseenJobs(): Promise<StoredJobListing[]> {
+    await this.ensureDataDir()
+    const files = await fs.readdir(this.dataDir)
+    const jsonFiles = files.filter((file) => file.endsWith(".json"))
+
+    const unseenJobs: StoredJobListing[] = []
+    for (const file of jsonFiles) {
+      const jobs = await fs.readJson(path.join(this.dataDir, file))
+      const unseen = jobs.filter((job: StoredJobListing) => !job.seen)
+      unseenJobs.push(...unseen)
+    }
+
+    return unseenJobs.sort((a, b) =>
+      new Date(b.date).getTime() - new Date(a.date).getTime()
+    )
+  }
+
+  async markAsSeen(jobId: string): Promise<void> {
+    await this.ensureDataDir()
+    const files = await fs.readdir(this.dataDir)
+    const jsonFiles = files.filter((file) => file.endsWith(".json"))
+
+    for (const file of jsonFiles) {
+      const filePath = path.join(this.dataDir, file)
+      const jobs: StoredJobListing[] = await fs.readJson(filePath)
+      const updated = jobs.map((job) =>
+        job.id === jobId ? { ...job, seen: true } : job
+      )
+
+      if (JSON.stringify(jobs) !== JSON.stringify(updated)) {
+        await fs.writeJson(filePath, updated, { spaces: 2 })
+        break
+      }
+    }
   }
 }

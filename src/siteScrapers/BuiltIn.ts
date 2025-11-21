@@ -10,14 +10,15 @@ export class BuiltInScraper extends BaseScraper {
   }
 
   async listJobs(page: Page): Promise<JobListing[]> {
+    const source = page.url()
     const jobDivs = await page.$$('#jobs-list div[data-id="job-card"]')
 
     const results = await Promise.all(
       jobDivs.map((row) =>
-        row.evaluate((el: HTMLDivElement) => {
+        row.evaluate((el: HTMLDivElement, source: string) => {
           const a = el.querySelector<HTMLAnchorElement>("h2 a")
-          return a ? { id: el.id, url: a.href } : null
-        })
+          return a ? { id: el.id, url: a.href, source } : null
+        }, source)
       )
     )
 

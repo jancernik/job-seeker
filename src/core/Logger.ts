@@ -13,10 +13,10 @@ export class Logger {
     await fs.ensureDir(logDir)
   }
 
-  async log(site: string, url: string): Promise<void> {
+  async log(site: string, jobUrl: string, source: string): Promise<void> {
     await this.ensureLogDir()
     const timestamp = new Date().toISOString()
-    const line = `${timestamp} | ${site} | ${url}\n`
+    const line = `${timestamp}\nSite: ${site}\nLink: ${jobUrl}\nFrom: ${source}\n\n`
     await fs.appendFile(this.logFile, line)
   }
 }

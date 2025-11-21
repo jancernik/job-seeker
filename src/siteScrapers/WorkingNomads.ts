@@ -10,14 +10,15 @@ export class WorkingNomadsScraper extends BaseScraper {
   }
 
   async listJobs(page: Page): Promise<JobListing[]> {
+    const source = page.url()
     const jobListings = await page.$$(".job-desktop[id]")
 
     const results = await Promise.all(
       jobListings.map((item) =>
-        item.evaluate((el: Element) => {
+        item.evaluate((el: Element, source: string) => {
           const a = el.querySelector("h4 a") as HTMLAnchorElement | null
-          return a ? { id: el.id, url: a.href } : null
-        })
+          return a ? { id: el.id, url: a.href, source } : null
+        }, source)
       )
     )
 

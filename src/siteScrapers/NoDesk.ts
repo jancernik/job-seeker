@@ -10,6 +10,7 @@ export class NoDeskScraper extends BaseScraper {
   }
 
   async listJobs(page: Page, tags:Array<string>): Promise<JobListing[]> {
+    const source = page.url()
     const allJobs = await page.$$(".ais-Hits-list .ais-Hits-item")
 
     const filteredJobs: typeof allJobs = []
@@ -26,11 +27,11 @@ export class NoDeskScraper extends BaseScraper {
 
     const results = await Promise.all(
       filteredJobs.map((item) =>
-        item.evaluate((el: Element) => {
+        item.evaluate((el: Element, source: string) => {
           const a = el.querySelector(".link") as HTMLAnchorElement | null
           const id = a?.href ? new URL(a.href).pathname.replaceAll("/", "") : null
-          return a && id ? { id, url: a.href } : null
-        })
+          return a && id ? { id, url: a.href, source } : null
+        }, source)
       )
     )
 
