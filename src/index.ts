@@ -89,13 +89,25 @@ const runScraper = async (): Promise<void> => {
     scrapeStartTime,
   })
 
-  const browser = await puppeteer.launch({ headless: false })
+  let browser
+  try {
+    browser = await puppeteer.launch({ headless: false })
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : String(error)
+    ui.updateStatus({
+      mode: 'idle',
+      status: `Browser launch failed: ${errorMsg.slice(0, 40)}`,
+    })
+    return
+  }
+
   const page = await browser.newPage()
   await page.setViewport({ width: 1920, height: 1080 })
 
   let scrapeJobsScraped = 0
   let scrapeNewJobsFound = 0
 
+  try {
   for (const [scraperIndex, scraper] of scrapers.entries()) {
     const isFirstRun = await storage.isFirstRun(scraper.site)
     const urls = scraper.getTargetUrls()
@@ -121,42 +133,49 @@ const runScraper = async (): Promise<void> => {
         await sleep(2000)
       }
 
-      await page.goto(url)
-      await scraper.waitForLoad(page)
-      await screenshots.capture(page, scraper.site)
+      try {
+        await page.goto(url, { timeout: 30000 })
+        await scraper.waitForLoad(page)
+        await screenshots.capture(page, scraper.site)
 
-      const jobs = await scraper.listJobs(page, tags)
+        const jobs = await scraper.listJobs(page, tags)
 
-      scrapeJobsScraped += jobs.length
-      sessionJobsScraped += jobs.length
-
-      ui.updateStatus({
-        jobsScraped: sessionJobsScraped,
-        status: `Found ${jobs.length} job(s)`,
-      })
-
-      const newJobs = await storage.getNewJobs(scraper.site, jobs, isFirstRun)
-      if (newJobs.length > 0) {
-        scrapeNewJobsFound += newJobs.length
-        sessionNewJobsFound += newJobs.length
+        scrapeJobsScraped += jobs.length
+        sessionJobsScraped += jobs.length
 
         ui.updateStatus({
-          newJobsFound: sessionNewJobsFound,
-          status: `Processing ${newJobs.length} new job(s)...`,
+          jobsScraped: sessionJobsScraped,
+          status: `Found ${jobs.length} job(s)`,
         })
 
-        for (const job of newJobs) {
-          await logger.log(scraper.site, job.url, job.source)
-          await notifier.notify(scraper.site, job.url)
-        }
+        const newJobs = await storage.getNewJobs(scraper.site, jobs, isFirstRun)
+        if (newJobs.length > 0) {
+          scrapeNewJobsFound += newJobs.length
+          sessionNewJobsFound += newJobs.length
 
-        await refreshUnseenJobs()
+          ui.updateStatus({
+            newJobsFound: sessionNewJobsFound,
+            status: `Processing ${newJobs.length} new job(s)...`,
+          })
+
+          for (const job of newJobs) {
+            await logger.log(scraper.site, job.url, job.source)
+            await notifier.notify(scraper.site, job.url)
+          }
+
+          await refreshUnseenJobs()
+        }
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : String(error)
+        ui.updateStatus({ status: `Error: ${errorMsg.slice(0, 50)}...` })
+        await sleep(1000)
       }
     }
   }
-
-  ui.updateStatus({ status: 'Closing browser...' })
-  await browser.close()
+  } finally {
+    ui.updateStatus({ status: 'Closing browser...' })
+    await browser.close()
+  }
 
   const timeString = new Date().toLocaleTimeString('en-US', {
     hour: '2-digit',
