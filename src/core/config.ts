@@ -12,4 +12,4 @@ if (!(await fs.pathExists(configPath))) {
 
 const config = await fs.readJson(configPath)
 export const urls: string[] = config.urls
-export const tags: Record<string, string[]> = config.tags = config.tags
+export const tags: Record<string, string[]> = (config.tags = config.tags)

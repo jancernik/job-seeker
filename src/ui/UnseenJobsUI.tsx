@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react'
-import { Box, Text, useInput, useStdout } from 'ink'
-import Link from 'ink-link'
-import { exec } from 'child_process'
-import { StoredJobListing } from '../core/types'
-import { colors } from './colors'
+import React, { useState, useEffect } from "react"
+import { Box, Text, useInput, useStdout } from "ink"
+import Link from "ink-link"
+import { exec } from "child_process"
+import { StoredJobListing } from "../core/types"
+import { colors } from "./colors"
 
 type UnseenJobsUIProps = {
   jobs: StoredJobListing[]
@@ -18,20 +18,20 @@ export const UnseenJobsUI: React.FC<UnseenJobsUIProps> = ({ jobs, onMarkAsSeen }
 
   const truncateUrl = (url: string, maxWidth: number): string => {
     if (url.length <= maxWidth) return url
-    return url.substring(0, maxWidth - 3) + '...'
+    return url.substring(0, maxWidth - 3) + "..."
   }
 
   const getHostname = (url: string, fallback: string): string => {
     try {
-      return new URL(url).hostname.replace('www.', '')
+      return new URL(url).hostname.replace("www.", "")
     } catch {
       return fallback
     }
   }
 
   const openUrl = (url: string) => {
-    const command = process.platform === 'darwin' ? 'open' :
-                   process.platform === 'win32' ? 'start' : 'xdg-open'
+    const command =
+      process.platform === "darwin" ? "open" : process.platform === "win32" ? "start" : "xdg-open"
     exec(`${command} "${url}"`)
   }
 
@@ -42,8 +42,8 @@ export const UnseenJobsUI: React.FC<UnseenJobsUIProps> = ({ jobs, onMarkAsSeen }
   }, [jobs.length, selectedIndex])
 
   useInput((input, key) => {
-    if (key.ctrl && input === 'c') {
-      process.emit('SIGINT' as any)
+    if (key.ctrl && input === "c") {
+      process.emit("SIGINT" as any)
       return
     }
     if (key.upArrow && selectedIndex > 0) {
@@ -52,7 +52,10 @@ export const UnseenJobsUI: React.FC<UnseenJobsUIProps> = ({ jobs, onMarkAsSeen }
       setSelectedIndex(selectedIndex + 1)
     } else if (key.return && jobs[selectedIndex]) {
       openUrl(jobs[selectedIndex].url)
-    } else if ((key.delete || key.backspace || input === 'd' || input === 'x') && jobs[selectedIndex]) {
+    } else if (
+      (key.delete || key.backspace || input === "d" || input === "x") &&
+      jobs[selectedIndex]
+    ) {
       onMarkAsSeen(jobs[selectedIndex].id)
     }
   })
@@ -62,7 +65,9 @@ export const UnseenJobsUI: React.FC<UnseenJobsUIProps> = ({ jobs, onMarkAsSeen }
       <Box borderStyle="round" borderColor={colors.gray[800]} paddingX={1}>
         <Box flexDirection="column" width="100%">
           <Box>
-            <Text color={colors.gray[50]} bold>No Unseen Jobs</Text>
+            <Text color={colors.gray[50]} bold>
+              No Unseen Jobs
+            </Text>
           </Box>
           <Box>
             <Text color={colors.gray[500]}>All caught up! No new jobs to review.</Text>
@@ -76,25 +81,37 @@ export const UnseenJobsUI: React.FC<UnseenJobsUIProps> = ({ jobs, onMarkAsSeen }
     <Box borderStyle="round" borderColor={colors.accent.purple} paddingX={1}>
       <Box flexDirection="column" width="100%">
         <Box>
-          <Text color={colors.accent.purple} bold>Unseen Jobs</Text>
+          <Text color={colors.accent.purple} bold>
+            Unseen Jobs
+          </Text>
           <Text color={colors.gray[300]}> ({jobs.length} new)</Text>
         </Box>
         <Box marginTop={1}>
           <Text color={colors.gray[500]}>Use </Text>
-          <Text color={colors.gray[100]} bold>↑/↓</Text>
+          <Text color={colors.gray[100]} bold>
+            ↑/↓
+          </Text>
           <Text color={colors.gray[500]}> to navigate, </Text>
-          <Text color={colors.gray[100]} bold>Enter</Text>
+          <Text color={colors.gray[100]} bold>
+            Enter
+          </Text>
           <Text color={colors.gray[500]}> to open, </Text>
-          <Text color={colors.gray[100]} bold>Del</Text>
+          <Text color={colors.gray[100]} bold>
+            Del
+          </Text>
           <Text color={colors.gray[500]}> to dismiss</Text>
         </Box>
 
         {jobs.slice(0, 10).map((job, index) => {
           const isSelected = index === selectedIndex
           const date = new Date(job.date)
-          const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-          const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
-          const siteName = getHostname(job.url, job.id.split('-')[0] || 'Unknown')
+          const dateStr = date.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+          const timeStr = date.toLocaleTimeString("en-US", {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false
+          })
+          const siteName = getHostname(job.url, job.id.split("-")[0] || "Unknown")
 
           return (
             <Box
@@ -106,7 +123,9 @@ export const UnseenJobsUI: React.FC<UnseenJobsUIProps> = ({ jobs, onMarkAsSeen }
               paddingX={1}
             >
               <Box>
-                <Text color={isSelected ? colors.gray[50] : colors.gray[200]} bold>{siteName}</Text>
+                <Text color={isSelected ? colors.gray[50] : colors.gray[200]} bold>
+                  {siteName}
+                </Text>
                 <Text color={colors.gray[600]}> • </Text>
                 <Text color={isSelected ? colors.accent.purple : colors.gray[400]}>{dateStr}</Text>
                 <Text color={colors.gray[600]}> at </Text>
@@ -135,7 +154,9 @@ export const UnseenJobsUI: React.FC<UnseenJobsUIProps> = ({ jobs, onMarkAsSeen }
         {jobs.length > 10 && (
           <Box marginTop={1}>
             <Text color={colors.gray[600]}>... and </Text>
-            <Text color={colors.gray[200]} bold>{jobs.length - 10}</Text>
+            <Text color={colors.gray[200]} bold>
+              {jobs.length - 10}
+            </Text>
             <Text color={colors.gray[600]}> more</Text>
           </Box>
         )}

@@ -11,15 +11,15 @@ export class BrainTrustScraper extends BaseScraper {
 
   async listJobs(page: Page): Promise<JobListing[]> {
     const source = page.url()
-    const jobListings = await page.$$('[class^="MuiStack-root jobs-container"] [class^="styles_header"]')
+    const jobListings = await page.$$(
+      '[class^="MuiStack-root jobs-container"] [class^="styles_header"]'
+    )
 
     const results = await Promise.all(
       jobListings.map((item) =>
         item.evaluate((el: Element, source: string) => {
           const a = el.querySelector("a") as HTMLAnchorElement | null
-          const id = a?.href
-            ? new URL(a.href).pathname.replace(/\/jobs\/|\//g, "")
-            : null
+          const id = a?.href ? new URL(a.href).pathname.replace(/\/jobs\/|\//g, "") : null
           return a && id ? { id, url: a.href, source } : null
         }, source)
       )

@@ -18,9 +18,7 @@ export class Screenshots {
   private async getScreenshotsForSite(site: string): Promise<string[]> {
     await this.ensureDir()
     const files = await fs.readdir(this.screenshotsDir)
-    return files
-      .filter((file) => file.startsWith(`${site}_`) && file.endsWith(".png"))
-      .sort()
+    return files.filter((file) => file.startsWith(`${site}_`) && file.endsWith(".png")).sort()
   }
 
   private async cleanupOldScreenshots(site: string): Promise<void> {

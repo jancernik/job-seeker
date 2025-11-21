@@ -62,10 +62,10 @@ const countdown = async (totalSeconds: number): Promise<void> => {
       }
 
       ui.updateStatus({
-        mode: 'idle',
+        mode: "idle",
         nextScrapeIn: remaining,
         jobsScraped: sessionJobsScraped,
-        newJobsFound: sessionNewJobsFound,
+        newJobsFound: sessionNewJobsFound
       })
 
       remaining--
@@ -83,10 +83,10 @@ const runScraper = async (): Promise<void> => {
   await screenshots.ensureDir()
 
   ui.updateStatus({
-    mode: 'scraping',
-    status: 'Launching browser...',
+    mode: "scraping",
+    status: "Launching browser...",
     runNumber,
-    scrapeStartTime,
+    scrapeStartTime
   })
 
   let browser
@@ -95,8 +95,8 @@ const runScraper = async (): Promise<void> => {
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error)
     ui.updateStatus({
-      mode: 'idle',
-      status: `Browser launch failed: ${errorMsg.slice(0, 40)}`,
+      mode: "idle",
+      status: `Browser launch failed: ${errorMsg.slice(0, 40)}`
     })
     return
   }
@@ -108,91 +108,91 @@ const runScraper = async (): Promise<void> => {
   let scrapeNewJobsFound = 0
 
   try {
-  for (const [scraperIndex, scraper] of scrapers.entries()) {
-    const isFirstRun = await storage.isFirstRun(scraper.site)
-    const urls = scraper.getTargetUrls()
-    const tags = scraper.getTargetTags()
+    for (const [scraperIndex, scraper] of scrapers.entries()) {
+      const isFirstRun = await storage.isFirstRun(scraper.site)
+      const urls = scraper.getTargetUrls()
+      const tags = scraper.getTargetTags()
 
-    ui.updateStatus({
-      currentSite: scraper.site,
-      totalUrls: urls.length,
-      currentUrl: 0,
-      currentSiteIndex: scraperIndex + 1,
-      totalSitesScraped: scrapers.length,
-      status: `Starting ${scraper.site}...`,
-    })
-
-    for (const [index, url] of urls.entries()) {
       ui.updateStatus({
-        currentUrl: index + 1,
-        status: `Scraping ${scraper.site}...`,
+        currentSite: scraper.site,
+        totalUrls: urls.length,
+        currentUrl: 0,
+        currentSiteIndex: scraperIndex + 1,
+        totalSitesScraped: scrapers.length,
+        status: `Starting ${scraper.site}...`
       })
 
-      if (index > 0) {
-        ui.updateStatus({ status: 'Cooling down...' })
-        await sleep(2000)
-      }
-
-      try {
-        await page.goto(url, { timeout: 30000 })
-        await scraper.waitForLoad(page)
-        await screenshots.capture(page, scraper.site)
-
-        const jobs = await scraper.listJobs(page, tags)
-
-        scrapeJobsScraped += jobs.length
-        sessionJobsScraped += jobs.length
-
+      for (const [index, url] of urls.entries()) {
         ui.updateStatus({
-          jobsScraped: sessionJobsScraped,
-          status: `Found ${jobs.length} job(s)`,
+          currentUrl: index + 1,
+          status: `Scraping ${scraper.site}...`
         })
 
-        const newJobs = await storage.getNewJobs(scraper.site, jobs, isFirstRun)
-        if (newJobs.length > 0) {
-          scrapeNewJobsFound += newJobs.length
-          sessionNewJobsFound += newJobs.length
+        if (index > 0) {
+          ui.updateStatus({ status: "Cooling down..." })
+          await sleep(2000)
+        }
+
+        try {
+          await page.goto(url, { timeout: 30000 })
+          await scraper.waitForLoad(page)
+          await screenshots.capture(page, scraper.site)
+
+          const jobs = await scraper.listJobs(page, tags)
+
+          scrapeJobsScraped += jobs.length
+          sessionJobsScraped += jobs.length
 
           ui.updateStatus({
-            newJobsFound: sessionNewJobsFound,
-            status: `Processing ${newJobs.length} new job(s)...`,
+            jobsScraped: sessionJobsScraped,
+            status: `Found ${jobs.length} job(s)`
           })
 
-          for (const job of newJobs) {
-            await logger.log(scraper.site, job.url, job.source)
-            await notifier.notify(scraper.site, job.url)
-          }
+          const newJobs = await storage.getNewJobs(scraper.site, jobs, isFirstRun)
+          if (newJobs.length > 0) {
+            scrapeNewJobsFound += newJobs.length
+            sessionNewJobsFound += newJobs.length
 
-          await refreshUnseenJobs()
+            ui.updateStatus({
+              newJobsFound: sessionNewJobsFound,
+              status: `Processing ${newJobs.length} new job(s)...`
+            })
+
+            for (const job of newJobs) {
+              await logger.log(scraper.site, job.url, job.source)
+              await notifier.notify(scraper.site, job.url)
+            }
+
+            await refreshUnseenJobs()
+          }
+        } catch (error) {
+          const errorMsg = error instanceof Error ? error.message : String(error)
+          ui.updateStatus({ status: `Error: ${errorMsg.slice(0, 50)}...` })
+          await sleep(1000)
         }
-      } catch (error) {
-        const errorMsg = error instanceof Error ? error.message : String(error)
-        ui.updateStatus({ status: `Error: ${errorMsg.slice(0, 50)}...` })
-        await sleep(1000)
       }
     }
-  }
   } finally {
-    ui.updateStatus({ status: 'Closing browser...' })
+    ui.updateStatus({ status: "Closing browser..." })
     await browser.close()
   }
 
-  const timeString = new Date().toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
+  const timeString = new Date().toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
     hour12: false
   })
 
   ui.updateStatus({
-    mode: 'idle',
+    mode: "idle",
     lastScrapeTime: timeString,
     status: `Completed. Scraped ${scrapeJobsScraped} jobs, found ${scrapeNewJobsFound} new.`,
-    runNumber,
+    runNumber
   })
 }
 
 const main = async () => {
-  ui.updateStatus({ mode: 'idle', status: 'Starting...' })
+  ui.updateStatus({ mode: "idle", status: "Starting..." })
   await refreshUnseenJobs()
 
   const unseenJobsInterval = setInterval(refreshUnseenJobs, 5000)
@@ -201,7 +201,7 @@ const main = async () => {
     while (true) {
       await runScraper()
       const nextIntervalSeconds = Math.floor(getRandomInterval() / 1000)
-      ui.updateStatus({ status: 'Waiting for next run...' })
+      ui.updateStatus({ status: "Waiting for next run..." })
       await countdown(nextIntervalSeconds)
     }
   } finally {
@@ -209,15 +209,15 @@ const main = async () => {
   }
 }
 
-process.on('SIGINT', () => {
+process.on("SIGINT", () => {
   ui.unmount()
-  process.stdout.write('\x1Bc')
+  process.stdout.write("\x1Bc")
   process.exit(0)
 })
 
 main().catch((error) => {
   ui.clear()
   ui.unmount()
-  console.error('Fatal error:', error)
+  console.error("Fatal error:", error)
   process.exit(1)
 })

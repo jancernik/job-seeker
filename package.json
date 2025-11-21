@@ -2,6 +2,10 @@
   "name": "job-seeker",
   "version": "1.0.0",
   "type": "module",
+  "scripts": {
+    "start": "pnpm exec tsx src/index.ts",
+    "format": "prettier --write ."
+  },
   "main": "index.js",
   "keywords": [],
   "author": "",
@@ -16,6 +20,7 @@
     "ink": "^6.5.1",
     "ink-link": "^5.0.0",
     "node-notifier": "^10.0.1",
+    "prettier": "^3.6.2",
     "puppeteer": "^24.31.0",
     "react": "^19.2.0",
     "tsx": "^4.20.6",

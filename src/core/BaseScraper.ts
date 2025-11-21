@@ -14,5 +14,5 @@ export abstract class BaseScraper {
   }
 
   abstract waitForLoad(page: Page): Promise<void>
-  abstract listJobs(page: Page, tags?:Array<string>): Promise<JobListing[]>
+  abstract listJobs(page: Page, tags?: Array<string>): Promise<JobListing[]>
 }

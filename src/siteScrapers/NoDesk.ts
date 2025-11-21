@@ -9,19 +9,16 @@ export class NoDeskScraper extends BaseScraper {
     await page.waitForSelector(".ais-Hits-list .ais-Hits-item")
   }
 
-  async listJobs(page: Page, tags:Array<string>): Promise<JobListing[]> {
+  async listJobs(page: Page, tags: Array<string>): Promise<JobListing[]> {
     const source = page.url()
     const allJobs = await page.$$(".ais-Hits-list .ais-Hits-item")
 
     const filteredJobs: typeof allJobs = []
     for (const item of allJobs) {
-      const matches = await item.evaluate(
-        (el: Element, allowed: string[]) => {
-          const locations = Array.from(el.querySelectorAll("h5"))
-          return locations.some((h) => allowed.includes(h.textContent?.trim() || ""))
-        },
-        tags
-      )
+      const matches = await item.evaluate((el: Element, allowed: string[]) => {
+        const locations = Array.from(el.querySelectorAll("h5"))
+        return locations.some((h) => allowed.includes(h.textContent?.trim() || ""))
+      }, tags)
       if (matches) filteredJobs.push(item)
     }
 

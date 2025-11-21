@@ -32,6 +32,9 @@ importers:
       node-notifier:
         specifier: ^10.0.1
         version: 10.0.1
+      prettier:
+        specifier: ^3.6.2
+        version: 3.6.2
       puppeteer:
         specifier: ^24.31.0
         version: 24.31.0(typescript@5.9.3)
@@ -647,6 +650,11 @@ packages:
 
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
+
+  prettier@3.6.2:
+    resolution: {integrity: sha512-I7AIg5boAr5R0FFtJ6rCfD+LFsWHp81dolrFD8S79U9tb8Az2nGrJncnMSnys+bpQJfRUzqs9hnA81OAA3hCuQ==}
+    engines: {node: '>=14'}
+    hasBin: true
 
   progress@2.0.3:
     resolution: {integrity: sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==}
@@ -1409,6 +1417,8 @@ snapshots:
   pend@1.2.0: {}
 
   picocolors@1.1.1: {}
+
+  prettier@3.6.2: {}
 
   progress@2.0.3: {}
 

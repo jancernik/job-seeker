@@ -72,9 +72,7 @@ export class Storage {
       unseenJobs.push(...unseen)
     }
 
-    return unseenJobs.sort((a, b) =>
-      new Date(b.date).getTime() - new Date(a.date).getTime()
-    )
+    return unseenJobs.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
   }
 
   async markAsSeen(jobId: string): Promise<void> {
@@ -85,9 +83,7 @@ export class Storage {
     for (const file of jsonFiles) {
       const filePath = path.join(this.dataDir, file)
       const jobs: StoredJobListing[] = await fs.readJson(filePath)
-      const updated = jobs.map((job) =>
-        job.id === jobId ? { ...job, seen: true } : job
-      )
+      const updated = jobs.map((job) => (job.id === jobId ? { ...job, seen: true } : job))
 
       if (JSON.stringify(jobs) !== JSON.stringify(updated)) {
         await fs.writeJson(filePath, updated, { spaces: 2 })
