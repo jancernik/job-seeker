@@ -136,6 +136,9 @@ const runScraper = async (): Promise<void> => {
         try {
           await page.goto(url, { timeout: 30000 })
           await scraper.waitForLoad(page)
+
+          if (page.url() !== url) continue
+
           await screenshots.capture(page, scraper.site)
 
           const jobs = await scraper.listJobs(page, tags)
