@@ -27,6 +27,8 @@ type ScraperUIProps = {
   onManualRun: () => void
 }
 
+const STATUS_BAR_HEIGHT = 4
+
 const ScraperUI: React.FC<ScraperUIProps> = ({
   onStatusUpdate,
   unseenJobs,
@@ -45,6 +47,7 @@ const ScraperUI: React.FC<ScraperUIProps> = ({
     runNumber: 0
   })
   const [terminalWidth, setTerminalWidth] = useState(stdout.columns || 80)
+  const [terminalHeight, setTerminalHeight] = useState(stdout.rows || 24)
   const [elapsedTime, setElapsedTime] = useState(0)
 
   useEffect(() => {
@@ -65,6 +68,7 @@ const ScraperUI: React.FC<ScraperUIProps> = ({
     const handleResize = () => {
       process.stdout.write("\x1Bc")
       setTerminalWidth(stdout.columns || 80)
+      setTerminalHeight(stdout.rows || 24)
     }
     stdout.on("resize", handleResize)
     return () => {
@@ -168,7 +172,11 @@ const ScraperUI: React.FC<ScraperUIProps> = ({
           </Box>
         </Box>
       </Box>
-      <UnseenJobsUI jobs={unseenJobs} onMarkAsSeen={onMarkAsSeen} />
+      <UnseenJobsUI
+        jobs={unseenJobs}
+        onMarkAsSeen={onMarkAsSeen}
+        availableHeight={terminalHeight - STATUS_BAR_HEIGHT}
+      />
     </Box>
   )
 }

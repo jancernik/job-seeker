@@ -8,13 +8,32 @@ import { colors } from "./colors"
 type UnseenJobsUIProps = {
   jobs: StoredJobListing[]
   onMarkAsSeen: (jobId: string) => void
+  availableHeight: number
 }
 
-export const UnseenJobsUI: React.FC<UnseenJobsUIProps> = ({ jobs, onMarkAsSeen }) => {
+const LINES_PER_CARD = 6
+const HEADER_LINES = 5
+const SCROLL_INDICATOR_LINES = 4
+
+export const UnseenJobsUI: React.FC<UnseenJobsUIProps> = ({
+  jobs,
+  onMarkAsSeen,
+  availableHeight
+}) => {
   const { stdout } = useStdout()
   const [selectedIndex, setSelectedIndex] = useState(0)
+
   const terminalWidth = stdout.columns || 80
   const urlMaxWidth = Math.max(30, terminalWidth - 12)
+  const maxVisibleCards = Math.max(
+    1,
+    Math.floor((availableHeight - HEADER_LINES - SCROLL_INDICATOR_LINES) / LINES_PER_CARD)
+  )
+  const startIndex = Math.max(
+    0,
+    Math.min(selectedIndex - maxVisibleCards + 1, jobs.length - maxVisibleCards)
+  )
+  const visibleJobs = jobs.slice(startIndex, startIndex + maxVisibleCards)
 
   const truncateUrl = (url: string, maxWidth: number): string => {
     if (url.length <= maxWidth) return url
@@ -102,8 +121,19 @@ export const UnseenJobsUI: React.FC<UnseenJobsUIProps> = ({ jobs, onMarkAsSeen }
           <Text color={colors.gray[500]}> to dismiss</Text>
         </Box>
 
-        {jobs.slice(0, 10).map((job, index) => {
-          const isSelected = index === selectedIndex
+        {startIndex > 0 && (
+          <Box marginTop={1}>
+            <Text color={colors.gray[600]}>↑ </Text>
+            <Text color={colors.gray[200]} bold>
+              {startIndex}
+            </Text>
+            <Text color={colors.gray[600]}> above</Text>
+          </Box>
+        )}
+
+        {visibleJobs.map((job, index) => {
+          const actualIndex = startIndex + index
+          const isSelected = actualIndex === selectedIndex
           const date = new Date(job.date)
           const dateStr = date.toLocaleDateString("en-US", { month: "short", day: "numeric" })
           const timeStr = date.toLocaleTimeString("en-US", {
@@ -151,13 +181,13 @@ export const UnseenJobsUI: React.FC<UnseenJobsUIProps> = ({ jobs, onMarkAsSeen }
           )
         })}
 
-        {jobs.length > 10 && (
+        {startIndex + maxVisibleCards < jobs.length && (
           <Box marginTop={1}>
-            <Text color={colors.gray[600]}>... and </Text>
+            <Text color={colors.gray[600]}>↓ </Text>
             <Text color={colors.gray[200]} bold>
-              {jobs.length - 10}
+              {jobs.length - startIndex - maxVisibleCards}
             </Text>
-            <Text color={colors.gray[600]}> more</Text>
+            <Text color={colors.gray[600]}> more below</Text>
           </Box>
         )}
       </Box>
