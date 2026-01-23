@@ -91,7 +91,7 @@ const runScraper = async (): Promise<void> => {
 
   let browser
   try {
-    browser = await puppeteer.launch({ headless: false })
+    browser = await puppeteer.launch({ headless: false, args: ["--class=puppeteer-browser"] })
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error)
     ui.updateStatus({
