@@ -16,8 +16,8 @@ export class WorkingNomadsScraper extends BaseScraper {
     const results = await Promise.all(
       jobListings.map((item) =>
         item.evaluate((el: Element, source: string) => {
-          const a = el.querySelector("h4 a") as HTMLAnchorElement | null
-          return a ? { id: el.id, url: a.href, source } : null
+          const a = el as HTMLAnchorElement
+          return a.href ? { id: el.id, url: a.href, source } : null
         }, source)
       )
     )
