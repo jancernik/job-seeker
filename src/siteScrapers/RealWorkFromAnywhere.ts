@@ -11,13 +11,14 @@ export class RealWorkFromAnywhereScraper extends BaseScraper {
 
   async listJobs(page: Page): Promise<JobListing[]> {
     const source = page.url()
-    const jobDivs = await page.$$("section:not(.grid-background) > div > div")
+    const jobListings = await page.$$("section:not(.grid-background) > div.flex a.w-full")
 
     const results = await Promise.all(
-      jobDivs.map((row) =>
-        row.evaluate((el: HTMLDivElement, source: string) => {
-          const a = el.querySelector<HTMLAnchorElement>("a.w-full.h-full")
-          return a ? { id: el.id, url: a.href, source } : null
+      jobListings.map((item) =>
+        item.evaluate((el: Element, source: string) => {
+          const a = el as HTMLAnchorElement
+          const id = a?.href ? new URL(a.href).pathname.replace(/\/jobs\/|\//g, "") : null
+          return a.href ? { id, url: a.href, source } : null
         }, source)
       )
     )
